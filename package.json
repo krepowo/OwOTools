@@ -1,0 +1,14 @@
+{
+  "name": "owo-tools",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.10.0",
+    "discord.js": "^14.21.0",
+    "dotenv": "^17.2.0",
+    "glob": "^11.0.3",
+    "pino": "^9.7.0"
+  }
+}
