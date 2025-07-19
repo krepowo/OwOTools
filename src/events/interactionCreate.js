@@ -21,7 +21,11 @@ export default {
             await command.run(interaction, client);
         } catch (error) {
             console.error(`Error executing command ${interaction.commandName}:`, error);
-            await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+            try {
+                await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+            } catch (error) {
+                await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+            }
         }
     },
 };
