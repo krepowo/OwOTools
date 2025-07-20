@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export async function fetchRyzumiAPI(path, parameter = {}) {
+export async function fetchRyzumiAPI(path, parameter = {}, responseType = "json") {
     const baseUrl = "https://apidl.asepharyana.tech/api";
     try {
         const response = await axios.get(`${baseUrl}${path}`, {
@@ -8,6 +8,7 @@ export async function fetchRyzumiAPI(path, parameter = {}) {
             headers: {
                 "Content-Type": "application/json",
             },
+            responseType
         });
         return response.data;
     } catch (error) {
