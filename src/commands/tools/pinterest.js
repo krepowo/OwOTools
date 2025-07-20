@@ -1,33 +1,48 @@
-
-import { ApplicationCommandOptionType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from 'discord.js';
-import { fetchRyzumiAPI } from '../../utils/ryzumi.js';
-import { createSimpleEmbed } from '../../utils/embed.js';
+import {
+    ApplicationCommandOptionType,
+    EmbedBuilder,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ComponentType,
+} from "discord.js";
+import { fetchRyzumiAPI } from "../../utils/ryzumi.js";
+import { createSimpleEmbed } from "../../utils/embed.js";
 
 export default {
-    name: 'pinterest',
-    description: 'Search for images on Pinterest.',
+    name: "pinterest",
+    description: "Search for images on Pinterest.",
     options: [
         {
-            name: 'query',
+            name: "query",
             type: ApplicationCommandOptionType.String,
-            description: 'The search query to look up on Pinterest',
-            required: true
-        }
+            description: "The search query to look up on Pinterest",
+            required: true,
+        },
     ],
     /**
      * @param {import('discord.js').CommandInteraction} interaction
      */
     run: async (interaction) => {
-        const query = interaction.options.getString('query');
+        const query = interaction.options.getString("query");
 
         await interaction.deferReply();
 
         try {
-            const data = await fetchRyzumiAPI('/search/pinterest', { query: query });
+            const data = await fetchRyzumiAPI("/search/pinterest", {
+                query: query,
+            });
 
             if (data.length === 0) {
-                const embed = createSimpleEmbed(`No valid image results found for: **${query}**`, 'Pinterest Search', '#FF0000');
-                return interaction.followUp({ embeds: [embed], ephemeral: true });
+                const embed = createSimpleEmbed(
+                    `No valid image results found for: **${query}**`,
+                    "Pinterest Search",
+                    "#FF0000",
+                );
+                return interaction.followUp({
+                    embeds: [embed],
+                    ephemeral: true,
+                });
             }
 
             let currentIndex = 0;
@@ -38,18 +53,20 @@ export default {
                     .setColor("#0099FF")
                     .setDescription(`[Click here to download the image](${image.link})`)
                     .setImage(image.directLink)
-                    .setFooter({ text: `Video ${index + 1} of ${data.length} | Searched for: ${query}` });
+                    .setFooter({
+                        text: `Video ${index + 1} of ${data.length} | Searched for: ${query}`,
+                    });
             };
 
             const prevButton = new ButtonBuilder()
-                .setCustomId('prev-image')
-                .setLabel('◀ Previous')
+                .setCustomId("prev-image")
+                .setLabel("◀ Previous")
                 .setStyle(ButtonStyle.Secondary)
                 .setDisabled(true);
 
             const nextButton = new ButtonBuilder()
-                .setCustomId('next-image')
-                .setLabel('Next ▶')
+                .setCustomId("next-image")
+                .setLabel("Next ▶")
                 .setStyle(ButtonStyle.Secondary)
                 .setDisabled(data.length <= 1);
 
@@ -57,41 +74,41 @@ export default {
 
             const reply = await interaction.followUp({
                 embeds: [generateEmbed(currentIndex)],
-                components: [row]
+                components: [row],
             });
 
             const collector = reply.createMessageComponentCollector({
                 componentType: ComponentType.Button,
-                idle: 60000
+                idle: 60000,
             });
 
-            collector.on('collect', async (i) => {
-
+            collector.on("collect", async (i) => {
                 if (i.user.id !== interaction.user.id) {
-                    return i.reply({ content: "You can't use these buttons.", ephemeral: true });
+                    return i.reply({
+                        content: "You can't use these buttons.",
+                        ephemeral: true,
+                    });
                 }
 
                 await i.deferUpdate();
 
-                if (i.customId === 'prev-image') {
+                if (i.customId === "prev-image") {
                     currentIndex--;
-                } else if (i.customId === 'next-image') {
+                } else if (i.customId === "next-image") {
                     currentIndex++;
                 }
 
                 prevButton.setDisabled(currentIndex === 0);
                 nextButton.setDisabled(currentIndex === data.length - 1);
 
-
                 await interaction.editReply({
                     embeds: [generateEmbed(currentIndex)],
-                    components: [new ActionRowBuilder().addComponents(prevButton, nextButton)]
+                    components: [new ActionRowBuilder().addComponents(prevButton, nextButton)],
                 });
             });
 
-            collector.on('end', async (collected, reason) => {
-                if (reason === 'idle') {
-
+            collector.on("end", async (collected, reason) => {
+                if (reason === "idle") {
                     const disabledRow = new ActionRowBuilder().addComponents(
                         prevButton.setDisabled(true),
                         nextButton.setDisabled(true),
@@ -100,12 +117,15 @@ export default {
                     await interaction.editReply({ components: [disabledRow] });
                 }
             });
-
         } catch (error) {
             console.error(`Error fetching Pinterest search results: ${error.message}`);
-            const embed = createSimpleEmbed('An error occurred while fetching the search results.', 'Pinterest Search Error', '#FF0000');
+            const embed = createSimpleEmbed(
+                "An error occurred while fetching the search results.",
+                "Pinterest Search Error",
+                "#FF0000",
+            );
 
             await interaction.editReply({ embeds: [embed], ephemeral: true });
         }
-    }
+    },
 };

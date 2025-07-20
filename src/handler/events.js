@@ -1,5 +1,5 @@
-import { glob } from 'glob';
-import { pathToFileURL } from 'url';
+import { glob } from "glob";
+import { pathToFileURL } from "url";
 
 export default async function (client) {
     const eventFiles = await glob(`${process.cwd()}/src/events/**/*.js`);

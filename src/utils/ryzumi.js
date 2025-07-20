@@ -1,13 +1,13 @@
-import axios from 'axios';
+import axios from "axios";
 
 export async function fetchRyzumiAPI(path, parameter = {}) {
-    const baseUrl = 'https://apidl.asepharyana.tech/api';
+    const baseUrl = "https://apidl.asepharyana.tech/api";
     try {
         const response = await axios.get(`${baseUrl}${path}`, {
             params: parameter,
             headers: {
-                'Content-Type': 'application/json'
-            }
+                "Content-Type": "application/json",
+            },
         });
         return response.data;
     } catch (error) {

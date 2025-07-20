@@ -1,7 +1,7 @@
-import { glob } from 'glob';
-import { pathToFileURL } from 'url';
+import { glob } from "glob";
+import { pathToFileURL } from "url";
 
-export default async function(client) {
+export default async function (client) {
     const commandFiles = await glob(`${process.cwd()}/src/commands/**/*.js`);
     commandFiles.map(async (file) => {
         const commandModule = await import(pathToFileURL(file));
@@ -10,7 +10,7 @@ export default async function(client) {
             console.warn(`Command at ${file} has no default export or name.`);
             return;
         }
-        if (typeof command.run !== 'function') {
+        if (typeof command.run !== "function") {
             console.warn(`Command ${command.name} at ${file} does not have a run method.`);
             return;
         }

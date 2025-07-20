@@ -2,16 +2,14 @@ import { configDotenv } from "dotenv";
 configDotenv();
 
 import { Client, GatewayIntentBits, Collection } from "discord.js";
-import loadAllHandler from './handler/index.js';
+import loadAllHandler from "./handler/index.js";
 
 const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds
-    ]
+    intents: [GatewayIntentBits.Guilds],
 });
 
 client.commands = new Collection();
 
-loadAllHandler(client)
+loadAllHandler(client);
 
-client.login(process.env.TOKEN)
+client.login(process.env.TOKEN);

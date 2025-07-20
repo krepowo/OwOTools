@@ -4,8 +4,8 @@ export default {
     name: Events.ClientReady,
     once: true,
     /**
-     * 
-     * @param {Client} client 
+     *
+     * @param {Client} client
      */
     run: async (client) => {
         console.log(`Logged in as ${client.user.tag}!`);
