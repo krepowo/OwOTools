@@ -1,5 +1,6 @@
 export default {
     name: "ping",
+    category: "INFO",
     description: "Ping the bot to check if it is online",
     /**
      * @param {import('discord.js').CommandInteraction} interaction

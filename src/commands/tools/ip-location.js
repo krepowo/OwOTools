@@ -13,6 +13,7 @@ export default {
             required: true,
         },
     ],
+    category: "TOOLS",
     /**
      * @param {import('discord.js').CommandInteraction} interaction
      */

@@ -1,12 +1,4 @@
-import {
-    ActionRowBuilder,
-    ApplicationCommandOptionType,
-    ButtonBuilder,
-    ButtonStyle,
-    ContainerBuilder,
-    EmbedBuilder,
-    MessageFlags,
-} from "discord.js";
+import { ApplicationCommandOptionType, ContainerBuilder, MessageFlags } from "discord.js";
 import { fetchRyzumiAPI } from "../../utils/ryzumi.js";
 import { createSimpleEmbed } from "../../utils/embed.js";
 
@@ -21,6 +13,7 @@ export default {
             required: true,
         },
     ],
+    category: "DOWNLOADER",
     /**
      * @param {import('discord.js').CommandInteraction} interaction
      */
