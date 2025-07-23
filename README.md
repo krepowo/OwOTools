@@ -1,18 +1,36 @@
-## OwOTools
 
-This bot have many tools, for like downloader, google search, yt search, and more!
+# OwOTools
 
-### How to install
+OwOTools is a Discord bot that have many utility tools like media downloader, search engine, and many more unique tools!
+
+Click [**HERE**](https://discord.com/oauth2/authorize?client_id=1395956065484537866&permissions=262144&integration_type=0&scope=applications.commands+bot) to invite and use OwOTools without setting up anything.
+
+## Features
+
+- Instagram downloader
+- Facebook downloader
+- Tiktok downloader
+- X/Twitter downloader
+- Google search
+- Google image search
+- Youtube search
+- Pinterest search + downloader
+- IP location lookup
+- Code carbon image maker
+And more in the future!
+
+
+## Installation
+What you need:
+- NodeJS LTS
 
 1. Clone this repository
-
     ```sh
     $ git clone https://github.com/krepowo/OwOTools
     $ cd OwOTools
     ```
 
 2. Add your discord bot token
-
     ```sh
     $ cp .env.example .env # Copy .env.example to .env
     # You can use your favorite text editor to add your token to .env
@@ -20,18 +38,20 @@ This bot have many tools, for like downloader, google search, yt search, and mor
     ```
 
 3. Install dependencies
-
     ```sh
     $ npm install
     ```
-
 4. Run your bot
     ```sh
     node src/index.js
     ```
+    
+## Usage
 
-### Credits
+After you finish installing the bot, you can run `/help` command to view all available commands.
 
-- [Discord.js](https://discord.js.org)
-- [Ryzumi REST API](https://api.ryzumi.vip/)
-- krepowo (me!)
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
+
