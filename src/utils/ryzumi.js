@@ -8,7 +8,7 @@ export async function fetchRyzumiAPI(path, parameter = {}, responseType = "json"
             headers: {
                 "Content-Type": "application/json",
             },
-            responseType
+            responseType,
         });
         return response.data;
     } catch (error) {

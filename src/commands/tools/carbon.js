@@ -16,7 +16,9 @@ export default {
      * @param {import('discord.js').CommandInteraction} interaction
      */
     run: async (interaction) => {
-        const modals = new ModalBuilder().setCustomId("carbon-create").setTitle("Create Carbon Image");
+        const modals = new ModalBuilder()
+            .setCustomId("carbon-create")
+            .setTitle("Create Carbon Image");
 
         const text = new TextInputBuilder()
             .setCustomId("carbon-text")
@@ -38,7 +40,7 @@ export default {
 
             await interaction.deferReply();
             try {
-                const res = await fetchRyzumiAPI("/tool/carbon", { code }, "arraybuffer"); // res media type is image/png
+                const res = await fetchRyzumiAPI("/tool/carbon", { code }, "arraybuffer");
                 const buffer = Buffer.from(res);
                 const att = new AttachmentBuilder(buffer, { name: "carbon.png" });
 
