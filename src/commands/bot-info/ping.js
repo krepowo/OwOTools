@@ -1,3 +1,5 @@
+import { createSimpleEmbed } from "../../utils/embed.js";
+
 export default {
     name: "ping",
     category: "INFO",
@@ -7,6 +9,14 @@ export default {
      */
     run: async (interaction) => {
         const ping = interaction.client.ws.ping;
-        await interaction.reply(`Pong! 🏓 Latency is ${ping}ms`);
+        const embed = createSimpleEmbed(`Websocket: \`${ping}ms\``, "🏓 Pong!", "#0099ff");
+
+        const then = performance.now();
+        await interaction.reply({ embeds: [embed] });
+        const now = performance.now();
+        const latency = now - then;
+
+        embed.data.description += `\nAPI Latency: \`${latency.toFixed(2)}ms\``;
+        await interaction.editReply({ embeds: [embed] });
     },
 };
