@@ -1,5 +1,4 @@
 import { ApplicationCommandOptionType, ContainerBuilder, MessageFlags } from "discord.js";
-import { fetchRyzumiAPI } from "../../utils/ryzumi.js";
 import { createSimpleEmbed } from "../../utils/embed.js";
 
 export default {
@@ -22,25 +21,14 @@ export default {
 
         await interaction.deferReply();
         try {
-            const res = await fetchRyzumiAPI("/downloader/igdl", { url: link });
-            if (!res.status) {
-                const embed = createSimpleEmbed(
-                    "Invalid instagram link",
-                    "Instagram-dl Error",
-                    "#FF0000",
-                );
-                return interaction.followUp({
-                    embeds: [embed],
-                    ephemeral: true,
-                });
-            }
-
             const abcd = new ContainerBuilder()
                 .setAccentColor(0x0099ff)
                 .addTextDisplayComponents((td) => td.setContent("Instagram Media Downloader"))
                 .addMediaGalleryComponents((media) =>
                     media.addItems((item) =>
-                        item.setDescription("Instagram Media Downloader").setURL(res.data[0].url),
+                        item
+                            .setDescription("Instagram Media Downloader")
+                            .setURL(link.replace("www.instagram.com", "kkinstagram.com")),
                     ),
                 );
 

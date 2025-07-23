@@ -1,5 +1,4 @@
 import { ApplicationCommandOptionType, ContainerBuilder, MessageFlags } from "discord.js";
-import { fetchRyzumiAPI } from "../../utils/ryzumi.js";
 import { createSimpleEmbed } from "../../utils/embed.js";
 
 export default {
@@ -22,23 +21,14 @@ export default {
 
         await interaction.deferReply();
         try {
-            const res = await fetchRyzumiAPI("/downloader/twitter", {
-                url: link,
-            });
-            if (!res.status) {
-                const embed = createSimpleEmbed("Invalid X link", "X-dl Error", "#FF0000");
-                return interaction.followUp({
-                    embeds: [embed],
-                    ephemeral: true,
-                });
-            }
-
             const abcd = new ContainerBuilder()
                 .setAccentColor(0x0099ff)
                 .addTextDisplayComponents((td) => td.setContent("X Media Downloader"))
                 .addMediaGalleryComponents((media) =>
                     media.addItems((item) =>
-                        item.setDescription("X Media Downloader").setURL(res.media[0].url),
+                        item
+                            .setDescription("X Media Downloader")
+                            .setURL(link.replace("x.com", "d.fixupx.com")),
                     ),
                 );
 
