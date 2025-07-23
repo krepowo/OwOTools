@@ -8,6 +8,7 @@ const client = new Client({
     intents: [GatewayIntentBits.Guilds],
 });
 
+client.totalCommandRuns = 0;
 client.commands = new Collection();
 
 loadAllHandler(client);
