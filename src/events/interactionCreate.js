@@ -18,6 +18,7 @@ export default {
 
             try {
                 await command.run(interaction, client);
+                client.totalCommandRuns++;
             } catch (error) {
                 console.error(`Error executing command ${interaction.commandName}:`, error);
                 try {
