@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import { fetchRyzumiAPI } from "../../utils/ryzumi.js";
 import { createSimpleEmbed } from "../../utils/embed.js";
+import * as badwords from "badwords-list";
 
 export default {
     name: "pinterest",
@@ -26,6 +27,17 @@ export default {
      */
     run: async (interaction) => {
         const query = interaction.options.getString("query");
+
+        if (badwords.array.some((word) => query.toLowerCase().includes(word))) {
+            if (!interaction.channel.nsfw) {
+                const embed = createSimpleEmbed(
+                    "Your search query contains inappropriate content.",
+                    "Google Search Error",
+                    "#FF0000",
+                );
+                return interaction.reply({ embeds: [embed], ephemeral: true });
+            }
+        }
 
         await interaction.deferReply();
 
