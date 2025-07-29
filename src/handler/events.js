@@ -1,5 +1,6 @@
 import { glob } from "glob";
 import { pathToFileURL } from "url";
+import logger from "../utils/logger.js";
 
 export default async function (client) {
     const eventFiles = await glob(`${process.cwd()}/src/events/**/*.js`);
@@ -9,7 +10,7 @@ export default async function (client) {
         const event = eventModule.default;
 
         if (!event) {
-            console.warn(`Event at ${file} has no default export.`);
+            logger.warn(`Event at ${file} has no default export.`);
             continue;
         }
 
@@ -19,6 +20,6 @@ export default async function (client) {
             client.on(event.name, (...args) => event.run(...args, client));
         }
 
-        console.log(`Event ${event.name} loaded.`);
+        logger.debug(`Event ${event.name} loaded.`);
     }
 }

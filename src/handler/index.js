@@ -1,5 +1,6 @@
 import { glob } from "glob";
 import { pathToFileURL } from "url";
+import logger from "../utils/logger.js";
 
 export default async function (client) {
     const handlerFiles = await glob(`${process.cwd()}/src/handler/**/*.js`);
@@ -9,13 +10,13 @@ export default async function (client) {
         const handler = handlerModule.default;
 
         if (!handler) {
-            console.warn(`Handler at ${file} has no default export.`);
+            logger.warn(`Handler at ${file} has no default export.`);
             continue;
         }
 
         if (typeof handler === "function") {
             await handler(client);
-            console.log(`Loading handler from ${file}`);
+            logger.debug(`Loading handler from ${file}`);
         }
     }
 }
