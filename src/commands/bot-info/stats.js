@@ -21,7 +21,8 @@ export default {
                 **Ping:** \`${client.ws.ping}ms\`
                 **Uptime:** \`${formatUptime(client.uptime / 1000)}\`\n
                 **Total commands:** \`${client.commands.size}\`
-                **Command runned since start:** \`${client.totalCommandRuns + 1}\``,
+                **Cmds ran since restart:** \`${client.totalCommandRuns + 1}\`\n
+                **Source code:** https://github.com/krepowo/OwOTools (go give it a star :D)`,
             )
             .setTimestamp();
 
