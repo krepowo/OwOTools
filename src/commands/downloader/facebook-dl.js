@@ -40,7 +40,9 @@ export default {
                 .addTextDisplayComponents((td) => td.setContent("Facebook Media Downloader"))
                 .addMediaGalleryComponents((media) =>
                     media.addItems((item) =>
-                        item.setDescription("Fesnuk Media Downloader").setURL(res.data[0].url),
+                        item
+                            .setDescription("Fesnuk Media Downloader")
+                            .setURL(res.data[0].url.replace("&dl=1", "")),
                     ),
                 );
 
