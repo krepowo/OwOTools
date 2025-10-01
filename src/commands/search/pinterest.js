@@ -11,31 +11,24 @@ import { createSimpleEmbed } from "../../utils/embed.js";
 import * as badwords from "badwords-list";
 
 export default {
-    name: "google-lens",
-    description: "Searches Google Lens for images related to the provided query.",
+    name: "pinterest",
+    description: "Search for images on Pinterest.",
     options: [
         {
-            name: "image",
-            type: ApplicationCommandOptionType.Attachment,
-            description: "The image to search on Google Lens",
+            name: "query",
+            type: ApplicationCommandOptionType.String,
+            description: "The search query to look up on Pinterest",
             required: true,
         },
     ],
-    category: "TOOLS",
+    category: "SEARCH",
     /**
      * @param {import('discord.js').CommandInteraction} interaction
      */
     run: async (interaction) => {
-        const image = interaction.options.getAttachment("image")?.url;
-        if (!image) {
-            const embed = createSimpleEmbed(
-                "You must provide an image to search on Google Lens.",
-                "Google Lens Error",
-                "#FF0000",
-            );
-            return interaction.reply({ embeds: [embed], ephemeral: true });
-        }
-        if (badwords.array.some((word) => image.toLowerCase().includes(word))) {
+        const query = interaction.options.getString("query");
+
+        if (badwords.array.some((word) => query.toLowerCase().includes(word))) {
             if (!interaction.channel.nsfw) {
                 const embed = createSimpleEmbed(
                     "Your search query contains inappropriate content.",
@@ -49,27 +42,14 @@ export default {
         await interaction.deferReply();
 
         try {
-            const data = await fetchRyzumiAPI("/search/lens", {
-                url: image,
+            const data = await fetchRyzumiAPI("/search/pinterest", {
+                query: query,
             });
 
-            const filteredResults = data.result
-                .filter(
-                    (image) =>
-                        image.image.link &&
-                        image.image.link.match(/\.(jpg|jpeg|png|gif|webp)$/i) &&
-                        isDiscordSafe(image.image.link),
-                )
-                .map((image) => ({
-                    title: image.title,
-                    image: image.image.link,
-                    url: image.link,
-                }));
-
-            if (filteredResults.length === 0) {
+            if (data.length === 0) {
                 const embed = createSimpleEmbed(
-                    "No valid image results found.",
-                    "Google Image Search",
+                    `No valid image results found for: **${query}**`,
+                    "Pinterest Search",
                     "#FF0000",
                 );
                 return interaction.followUp({
@@ -81,15 +61,13 @@ export default {
             let currentIndex = 0;
 
             const generateEmbed = (index) => {
-                const currentImage = filteredResults[index];
+                const image = data[index];
                 return new EmbedBuilder()
                     .setColor("#0099FF")
-                    .setTitle(currentImage.title)
-                    .setURL(currentImage.url)
-                    .setImage(currentImage.image)
-                    .setThumbnail(image)
+                    .setDescription(`[Click here to download the image](${image.link})`)
+                    .setImage(image.directLink)
                     .setFooter({
-                        text: `Image ${index + 1} of ${filteredResults.length}`,
+                        text: `Video ${index + 1} of ${data.length} | Searched for: ${query}`,
                     });
             };
 
@@ -103,7 +81,7 @@ export default {
                 .setCustomId("next-image")
                 .setLabel("Next ▶")
                 .setStyle(ButtonStyle.Secondary)
-                .setDisabled(filteredResults.length <= 1);
+                .setDisabled(data.length <= 1);
 
             const row = new ActionRowBuilder().addComponents(prevButton, nextButton);
 
@@ -134,7 +112,7 @@ export default {
                 }
 
                 prevButton.setDisabled(currentIndex === 0);
-                nextButton.setDisabled(currentIndex === filteredResults.length - 1);
+                nextButton.setDisabled(currentIndex === data.length - 1);
 
                 await interaction.editReply({
                     embeds: [generateEmbed(currentIndex)],
@@ -153,10 +131,10 @@ export default {
                 }
             });
         } catch (error) {
-            console.error(`Error fetching Google Lens results: ${error.message}`);
+            console.error(`Error fetching Pinterest search results: ${error.message}`);
             const embed = createSimpleEmbed(
                 "An error occurred while fetching the search results.",
-                "Google Lens Error",
+                "Pinterest Search Error",
                 "#FF0000",
             );
 
@@ -164,16 +142,3 @@ export default {
         }
     },
 };
-
-function isDiscordSafe(urlString) {
-    try {
-        const url = new URL(urlString);
-        if (!["http:", "https:"].includes(url.protocol)) return false;
-        if (/[<>\s]/.test(urlString)) return false;
-        const badInPath = url.pathname.split("/").some((seg) => /[:']/.test(seg));
-        if (badInPath) return false;
-        return true;
-    } catch {
-        return false;
-    }
-}

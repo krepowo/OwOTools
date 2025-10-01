@@ -11,22 +11,23 @@ import { createSimpleEmbed } from "../../utils/embed.js";
 import * as badwords from "badwords-list";
 
 export default {
-    name: "google-image",
-    description: "Searches Google for images related to the provided query.",
+    name: "wallpaper",
+    description: "Get live wallpaper from Moe Walls.",
     options: [
         {
             name: "query",
             type: ApplicationCommandOptionType.String,
-            description: "The search query to look up on Google Images",
+            description: "The search query to look up on Moe Walls",
             required: true,
         },
     ],
-    category: "TOOLS",
+    category: "SEARCH",
     /**
      * @param {import('discord.js').CommandInteraction} interaction
      */
     run: async (interaction) => {
         const query = interaction.options.getString("query");
+
         if (badwords.array.some((word) => query.toLowerCase().includes(word))) {
             if (!interaction.channel.nsfw) {
                 const embed = createSimpleEmbed(
@@ -41,27 +42,16 @@ export default {
         await interaction.deferReply();
 
         try {
-            const data = await fetchRyzumiAPI("/search/gimage", {
+            const data = await fetchRyzumiAPI("/search/wallpaper-moe", {
                 query: query,
             });
 
-            const filteredResults = data
-                .filter(
-                    (image) =>
-                        image.image &&
-                        image.image.match(/\.(jpg|jpeg|png|gif)$/i) &&
-                        isDiscordSafe(image.image),
-                )
-                .map((image) => ({
-                    title: image.title,
-                    image: image.image,
-                    url: image.url,
-                }));
+            const wallpaper = data.result;
 
-            if (filteredResults.length === 0) {
+            if (wallpaper.length === 0) {
                 const embed = createSimpleEmbed(
-                    `No valid image results found for: **${query}**`,
-                    "Google Image Search",
+                    `No valid wallpaper results found for: **${query}**`,
+                    "Wallpaper Search",
                     "#FF0000",
                 );
                 return interaction.followUp({
@@ -73,14 +63,15 @@ export default {
             let currentIndex = 0;
 
             const generateEmbed = (index) => {
-                const currentImage = filteredResults[index];
+                const currentVideo = wallpaper[index];
                 return new EmbedBuilder()
                     .setColor("#0099FF")
-                    .setTitle(currentImage.title)
-                    .setURL(currentImage.url)
-                    .setImage(currentImage.image)
+                    .setTitle(currentVideo.title)
+                    .setURL(currentVideo.link)
+                    .setDescription(":arrow_up: Click link above to view the wallpaper.")
+                    .setImage(currentVideo.wallpaper)
                     .setFooter({
-                        text: `Image ${index + 1} of ${filteredResults.length} | Searched for: ${query}`,
+                        text: `Video ${index + 1} of ${wallpaper.length} | Searched for: ${query}`,
                     });
             };
 
@@ -94,7 +85,7 @@ export default {
                 .setCustomId("next-image")
                 .setLabel("Next ▶")
                 .setStyle(ButtonStyle.Secondary)
-                .setDisabled(filteredResults.length <= 1);
+                .setDisabled(wallpaper.length <= 1);
 
             const row = new ActionRowBuilder().addComponents(prevButton, nextButton);
 
@@ -125,7 +116,7 @@ export default {
                 }
 
                 prevButton.setDisabled(currentIndex === 0);
-                nextButton.setDisabled(currentIndex === filteredResults.length - 1);
+                nextButton.setDisabled(currentIndex === wallpaper.length - 1);
 
                 await interaction.editReply({
                     embeds: [generateEmbed(currentIndex)],
@@ -155,16 +146,3 @@ export default {
         }
     },
 };
-
-function isDiscordSafe(urlString) {
-    try {
-        const url = new URL(urlString);
-        if (!["http:", "https:"].includes(url.protocol)) return false;
-        if (/[<>\s]/.test(urlString)) return false;
-        const badInPath = url.pathname.split("/").some((seg) => /[:']/.test(seg));
-        if (badInPath) return false;
-        return true;
-    } catch {
-        return false;
-    }
-}

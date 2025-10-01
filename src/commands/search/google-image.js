@@ -11,23 +11,22 @@ import { createSimpleEmbed } from "../../utils/embed.js";
 import * as badwords from "badwords-list";
 
 export default {
-    name: "pinterest",
-    description: "Search for images on Pinterest.",
+    name: "google-image",
+    description: "Searches Google for images related to the provided query.",
     options: [
         {
             name: "query",
             type: ApplicationCommandOptionType.String,
-            description: "The search query to look up on Pinterest",
+            description: "The search query to look up on Google Images",
             required: true,
         },
     ],
-    category: "TOOLS",
+    category: "SEARCH",
     /**
      * @param {import('discord.js').CommandInteraction} interaction
      */
     run: async (interaction) => {
         const query = interaction.options.getString("query");
-
         if (badwords.array.some((word) => query.toLowerCase().includes(word))) {
             if (!interaction.channel.nsfw) {
                 const embed = createSimpleEmbed(
@@ -42,14 +41,27 @@ export default {
         await interaction.deferReply();
 
         try {
-            const data = await fetchRyzumiAPI("/search/pinterest", {
+            const data = await fetchRyzumiAPI("/search/gimage", {
                 query: query,
             });
 
-            if (data.length === 0) {
+            const filteredResults = data
+                .filter(
+                    (image) =>
+                        image.image &&
+                        image.image.match(/\.(jpg|jpeg|png|gif)$/i) &&
+                        isDiscordSafe(image.image),
+                )
+                .map((image) => ({
+                    title: image.title,
+                    image: image.image,
+                    url: image.url,
+                }));
+
+            if (filteredResults.length === 0) {
                 const embed = createSimpleEmbed(
                     `No valid image results found for: **${query}**`,
-                    "Pinterest Search",
+                    "Google Image Search",
                     "#FF0000",
                 );
                 return interaction.followUp({
@@ -61,13 +73,14 @@ export default {
             let currentIndex = 0;
 
             const generateEmbed = (index) => {
-                const image = data[index];
+                const currentImage = filteredResults[index];
                 return new EmbedBuilder()
                     .setColor("#0099FF")
-                    .setDescription(`[Click here to download the image](${image.link})`)
-                    .setImage(image.directLink)
+                    .setTitle(currentImage.title)
+                    .setURL(currentImage.url)
+                    .setImage(currentImage.image)
                     .setFooter({
-                        text: `Video ${index + 1} of ${data.length} | Searched for: ${query}`,
+                        text: `Image ${index + 1} of ${filteredResults.length} | Searched for: ${query}`,
                     });
             };
 
@@ -81,7 +94,7 @@ export default {
                 .setCustomId("next-image")
                 .setLabel("Next ▶")
                 .setStyle(ButtonStyle.Secondary)
-                .setDisabled(data.length <= 1);
+                .setDisabled(filteredResults.length <= 1);
 
             const row = new ActionRowBuilder().addComponents(prevButton, nextButton);
 
@@ -112,7 +125,7 @@ export default {
                 }
 
                 prevButton.setDisabled(currentIndex === 0);
-                nextButton.setDisabled(currentIndex === data.length - 1);
+                nextButton.setDisabled(currentIndex === filteredResults.length - 1);
 
                 await interaction.editReply({
                     embeds: [generateEmbed(currentIndex)],
@@ -131,10 +144,10 @@ export default {
                 }
             });
         } catch (error) {
-            console.error(`Error fetching Pinterest search results: ${error.message}`);
+            console.error(`Error fetching Google search results: ${error.message}`);
             const embed = createSimpleEmbed(
                 "An error occurred while fetching the search results.",
-                "Pinterest Search Error",
+                "Google Search Error",
                 "#FF0000",
             );
 
@@ -142,3 +155,16 @@ export default {
         }
     },
 };
+
+function isDiscordSafe(urlString) {
+    try {
+        const url = new URL(urlString);
+        if (!["http:", "https:"].includes(url.protocol)) return false;
+        if (/[<>\s]/.test(urlString)) return false;
+        const badInPath = url.pathname.split("/").some((seg) => /[:']/.test(seg));
+        if (badInPath) return false;
+        return true;
+    } catch {
+        return false;
+    }
+}

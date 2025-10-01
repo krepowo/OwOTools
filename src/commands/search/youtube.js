@@ -11,23 +11,22 @@ import { createSimpleEmbed } from "../../utils/embed.js";
 import * as badwords from "badwords-list";
 
 export default {
-    name: "wallpaper-search",
-    description: "Get live wallpaper from Moe Walls.",
+    name: "youtube",
+    description: "Searches YouTube for videos related to the provided query.",
     options: [
         {
             name: "query",
             type: ApplicationCommandOptionType.String,
-            description: "The search query to look up on Moe Walls",
+            description: "The search query to look up on YouTube",
             required: true,
         },
     ],
-    category: "TOOLS",
+    category: "SEARCH",
     /**
      * @param {import('discord.js').CommandInteraction} interaction
      */
     run: async (interaction) => {
         const query = interaction.options.getString("query");
-
         if (badwords.array.some((word) => query.toLowerCase().includes(word))) {
             if (!interaction.channel.nsfw) {
                 const embed = createSimpleEmbed(
@@ -42,16 +41,14 @@ export default {
         await interaction.deferReply();
 
         try {
-            const data = await fetchRyzumiAPI("/search/wallpaper-moe", {
-                query: query,
-            });
+            const data = await fetchRyzumiAPI("/search/yt", { query: query });
 
-            const wallpaper = data.result;
+            const videos = data.videos;
 
-            if (wallpaper.length === 0) {
+            if (videos.length === 0) {
                 const embed = createSimpleEmbed(
-                    `No valid wallpaper results found for: **${query}**`,
-                    "Wallpaper Search",
+                    `No valid video results found for: **${query}**`,
+                    "YouTube Search",
                     "#FF0000",
                 );
                 return interaction.followUp({
@@ -63,15 +60,32 @@ export default {
             let currentIndex = 0;
 
             const generateEmbed = (index) => {
-                const currentVideo = wallpaper[index];
+                const currentVideo = videos[index];
                 return new EmbedBuilder()
                     .setColor("#0099FF")
                     .setTitle(currentVideo.title)
-                    .setURL(currentVideo.link)
-                    .setDescription(":arrow_up: Click link above to view the wallpaper.")
-                    .setImage(currentVideo.wallpaper)
+                    .setURL(currentVideo.url)
+                    .setImage(currentVideo.thumbnail)
+                    .setDescription(currentVideo.description)
+                    .addFields([
+                        {
+                            name: "Views",
+                            value: `${currentVideo.views}`,
+                            inline: true,
+                        },
+                        {
+                            name: "Duration",
+                            value: currentVideo.duration.timestamp,
+                            inline: true,
+                        },
+                        {
+                            name: "Channel",
+                            value: `[${currentVideo.author.name}](${currentVideo.author.url})`,
+                            inline: true,
+                        },
+                    ])
                     .setFooter({
-                        text: `Video ${index + 1} of ${wallpaper.length} | Searched for: ${query}`,
+                        text: `Video ${index + 1} of ${videos.length} | Searched for: ${query}`,
                     });
             };
 
@@ -85,7 +99,7 @@ export default {
                 .setCustomId("next-image")
                 .setLabel("Next ▶")
                 .setStyle(ButtonStyle.Secondary)
-                .setDisabled(wallpaper.length <= 1);
+                .setDisabled(videos.length <= 1);
 
             const row = new ActionRowBuilder().addComponents(prevButton, nextButton);
 
@@ -116,7 +130,7 @@ export default {
                 }
 
                 prevButton.setDisabled(currentIndex === 0);
-                nextButton.setDisabled(currentIndex === wallpaper.length - 1);
+                nextButton.setDisabled(currentIndex === videos.length - 1);
 
                 await interaction.editReply({
                     embeds: [generateEmbed(currentIndex)],

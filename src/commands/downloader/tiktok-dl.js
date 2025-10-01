@@ -1,6 +1,12 @@
-import { ApplicationCommandOptionType, ContainerBuilder, MessageFlags } from "discord.js";
+import {
+    ApplicationCommandOptionType,
+    ContainerBuilder,
+    MessageFlags,
+    SeparatorSpacingSize,
+} from "discord.js";
 import { fetchRyzumiAPI } from "../../utils/ryzumi.js";
 import { createSimpleEmbed } from "../../utils/embed.js";
+import { fetchNekolabsAPI } from "../../utils/nekolabs.js";
 
 export default {
     name: "tiktok-dl",
@@ -22,8 +28,8 @@ export default {
 
         await interaction.deferReply();
         try {
-            const res = await fetchRyzumiAPI("/downloader/v2/ttdl", { url: link });
-            if (!res.success) {
+            const res = await fetchNekolabsAPI("downloader/tiktok", { url: link });
+            if (!res.status) {
                 const embed = createSimpleEmbed(
                     "Invalid Tiktok link",
                     "Tiktok-dl Error",
@@ -37,12 +43,19 @@ export default {
 
             const abcd = new ContainerBuilder()
                 .setAccentColor(0x0099ff)
-                .addTextDisplayComponents((td) => td.setContent("Tiktok Media Downloader"))
+                .addSectionComponents((s) =>
+                    s
+                        .addTextDisplayComponents((td) =>
+                            td.setContent(
+                                `## ${res.result.title}\n-# ${res.result.create_at}\n ▶ ${res.result.stats.play} | ❤️ ${res.result.stats.like} | 💬 ${res.result.stats.comment} | 🔁 ${res.result.stats.share}`,
+                            ),
+                        )
+                        .setThumbnailAccessory((t) => t.setURL(res.result.cover)),
+                )
+                .addSeparatorComponents((s) => s.setSpacing(SeparatorSpacingSize.Small))
                 .addMediaGalleryComponents((media) =>
                     media.addItems((item) =>
-                        item
-                            .setDescription("Tiktok Media Downloader")
-                            .setURL(res.data.video_data.nwm_video_url_HQ),
+                        item.setDescription("Tiktok Media Downloader").setURL(res.result.videoUrl),
                     ),
                 );
 
