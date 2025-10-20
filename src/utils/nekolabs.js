@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export async function fetchNekolabsAPI(path, parameter = {}, responseType = "json") {
-    const baseUrl = "https://api.nekolabs.my.id/";
+    const baseUrl = "https://api.nekolabs.my.id";
     try {
         const response = await axios.get(`${baseUrl}${path}`, {
             params: parameter,

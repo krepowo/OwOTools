@@ -46,7 +46,7 @@ export default {
         await interaction.deferReply();
 
         try {
-            const res = await fetchNekolabsAPI("discovery/spotify/search", {
+            const res = await fetchNekolabsAPI("/discovery/spotify/search", {
                 q: query,
             });
             res.result.splice(5);

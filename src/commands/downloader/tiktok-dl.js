@@ -28,7 +28,7 @@ export default {
 
         await interaction.deferReply();
         try {
-            const res = await fetchNekolabsAPI("downloader/tiktok", { url: link });
+            const res = await fetchNekolabsAPI("/downloader/tiktok", { url: link });
             if (!res.status) {
                 const embed = createSimpleEmbed(
                     "Invalid Tiktok link",
@@ -56,6 +56,11 @@ export default {
                 .addMediaGalleryComponents((media) =>
                     media.addItems((item) =>
                         item.setDescription("Tiktok Media Downloader").setURL(res.result.videoUrl),
+                    ),
+                )
+                .addTextDisplayComponents((td) =>
+                    td.setContent(
+                        `-# ${currentImage.music_info.title} | ${currentImage.music_info.author}`,
                     ),
                 );
 

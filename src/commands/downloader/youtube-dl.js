@@ -49,7 +49,7 @@ export default {
 
         await interaction.deferReply();
         try {
-            const res = await fetchNekolabsAPI("downloader/youtube/v1", {
+            const res = await fetchNekolabsAPI("/downloader/youtube/v1", {
                 url: link,
                 format: resolution,
             });

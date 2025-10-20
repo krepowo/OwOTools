@@ -22,7 +22,7 @@ export default {
                 **Uptime:** \`${formatUptime(client.uptime / 1000)}\`\n
                 **Total commands:** \`${client.commands.size}\`
                 **Cmds ran since restart:** \`${client.totalCommandRuns + 1}\`\n
-                **Source code:** https://github.com/krepowo/OwOTools (go give it a star :D)`,
+                **Source code:** https://github.com/krepowo/OwOTools`,
             )
             .setTimestamp();
 
